@@ -43,7 +43,10 @@ jobs:
       - name: Install Android 36 SDK
         run: |
           echo "ANDROID_HOME=$ANDROID_HOME"
-          sdkmanager "platforms;android-36" "build-tools;36.0.0"
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager -print -quit)"
+          test -n "$SDKMANAGER" || { echo "No Android sdkmanager found"; exit 1; }
+          echo "Using $SDKMANAGER"
+          "$SDKMANAGER" "platforms;android-36" "build-tools;36.0.0"
 
       - name: Compile signed debug APK
         working-directory: upstream
