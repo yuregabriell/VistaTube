@@ -1,0 +1,8 @@
+upstream/
+dist/
+.gradle/
+**/build/
+__pycache__/
+*.pyc
+*.jks
+*.keystore
