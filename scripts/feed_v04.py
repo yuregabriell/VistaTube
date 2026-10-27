@@ -92,11 +92,20 @@ import com.github.libretube.extensions.toID''')
             .toList()
         val distinct = (searchQueries + creators + titles)
             .distinctBy { it.lowercase() }
-        if (distinct.isEmpty()) return emptyList()
+        // Fresh installs have no local signals yet. Start with a varied
+        // Portuguese-language discovery feed, never just 1–2 live trends.
+        val seeds = if (distinct.isEmpty()) listOf(
+            "entretenimento em português",
+            "gaming brasileiro",
+            "música brasileira",
+            "humor português",
+            "ciência tecnologia em português",
+            "podcast brasileiro"
+        ) else distinct
 
         // Rotating topics avoids refreshing the exact same set every time.
-        val offset = (refreshIndex - 1).coerceAtLeast(0) % distinct.size
-        val rotated = distinct.drop(offset) + distinct.take(offset)
+        val offset = (refreshIndex - 1).coerceAtLeast(0) % seeds.size
+        val rotated = seeds.drop(offset) + seeds.take(offset)
         return rotated.take(6)
     }
 
