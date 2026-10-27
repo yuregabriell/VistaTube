@@ -1,0 +1,96 @@
+name: Build VistaTube APK and GitHub Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vistatube-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - name: Checkout VistaTube source
+        uses: actions/checkout@v4
+
+      - name: Test customization scripts
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Fetch LibreTube v32.1 source (pinned)
+        run: |
+          git clone --depth 1 --branch v32.1 https://github.com/libre-tube/LibreTube.git upstream
+          expected="6a861f4282c3de73b840793365d8ac7114b5a80f"
+          actual="$(git -C upstream rev-parse HEAD)"
+          echo "LibreTube source SHA: $actual"
+          test "$actual" = "$expected" || { echo 'Unexpected LibreTube upstream commit'; exit 1; }
+
+      - name: Apply VistaTube identity
+        run: python3 scripts/brand.py upstream
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Android tooling
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android 36 SDK
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Compile signed debug APK
+        working-directory: upstream
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon :app:assembleDebug
+
+      - name: Package APK and corresponding source
+        run: |
+          mkdir -p dist
+          cp upstream/app/build/outputs/apk/debug/app-debug.apk "dist/VistaTube-preview-${{ github.run_number }}.apk"
+          tar --exclude='upstream/.git' --exclude='upstream/.gradle' \
+              --exclude='upstream/app/build' --exclude='upstream/baselineprofile/build' \
+              -czf "dist/VistaTube-source-${{ github.run_number }}.tar.gz" upstream
+          (cd dist && sha256sum VistaTube-* > SHA256SUMS.txt)
+          ls -lh dist/
+
+      - name: Keep GitHub Actions downloadable artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: VistaTube-APK-${{ github.run_number }}
+          path: dist/*
+
+      - name: Publish preview release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v0.1.0-preview.${{ github.run_number }}
+          target_commitish: ${{ github.sha }}
+          name: VistaTube v0.1.0 Preview ${{ github.run_number }}
+          prerelease: true
+          generate_release_notes: false
+          body: |
+            ## VistaTube — primeira prévia Android
+            Variante não oficial do LibreTube v32.1 (GPL-3.0-or-later).
+            Identidade VistaTube, ícone personalizado, tema escuro azul/ciano.
+
+            Pesquisa, vídeos, legendas, playlists, SponsorBlock e outras funções
+            são herdadas do LibreTube. Não há login Google nem integração Cast dedicada.
+            Ainda não foi testado num dispositivo físico e a disponibilidade depende
+            de alterações no YouTube.
+
+            APK de testes assinado com uma chave debug temporária; para atualizar
+            pode ser necessário desinstalar uma versão anterior, com perda de dados.
+            Disponibilizamos também o código-fonte modificado correspondente.
+          files: |
+            dist/VistaTube-preview-*.apk
+            dist/VistaTube-source-*.tar.gz
+            dist/SHA256SUMS.txt
+          fail_on_unmatched_files: true
