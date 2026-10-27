@@ -157,6 +157,7 @@ def patch(root):
         val hasVideos = !videos.isNullOrEmpty()
         binding.recommendedHeader.isVisible = hasVideos
         binding.recommendedRV.isVisible = hasVideos
+        binding.trendingRV.isGone = hasVideos
         recommendedAdapter.submitList(videos.orEmpty())
     }
 
