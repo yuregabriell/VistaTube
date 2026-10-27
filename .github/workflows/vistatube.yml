@@ -43,6 +43,9 @@ jobs:
       - name: Add local personalized recommendations
         run: python3 scripts/recommendations.py upstream
 
+      - name: Add history- and search-based paginated discovery
+        run: python3 scripts/feed_v04.py upstream
+
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
@@ -82,16 +85,18 @@ jobs:
       - name: Publish preview release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v0.3.0-preview.${{ github.run_number }}
+          tag_name: v0.4.0-preview.${{ github.run_number }}
           target_commitish: ${{ github.sha }}
-          name: VistaTube v0.3.0 Preview ${{ github.run_number }}
+          name: VistaTube v0.4.0 Preview ${{ github.run_number }}
           prerelease: true
           generate_release_notes: false
           body: |
-            ## VistaTube 0.3 — correção do player, lives e recomendações
+            ## VistaTube 0.4 — descoberta personalizada e paginação
             Variante não oficial do LibreTube v32.1 (GPL-3.0-or-later).
-            Correção da superfície de vídeo com TextureView, prioridade de HLS/DASH para
-            lives e recomendações personalizadas com análise local do histórico.
+            Feed personalizado a partir de pesquisas locais e histórico de visualização,
+            busca automática de vídeos relacionados, páginas adicionais sob scroll,
+            atualização por swipe e 1–2 vídeos recentes em Continuar a ver.
+            Mantém os ajustes anteriores no player e nas lives.
             Feed com vídeos em largura total,
             categorias navegáveis, prévia do histórico na biblioteca, títulos de
             Histórico e Downloads e pequenas melhorias na aparência.
