@@ -144,6 +144,8 @@ def style_home(res):
         }
         binding.trendingCategory.isVisible = false"""
     replace_exact(home,old,new)
+    replace_exact(home,"makeVisible(binding.trendingRV, binding.trendingTV)",
+                  "makeVisible(binding.trendingRV)")
     replace_exact(home,"trendingAdapter.submitList(trendingStreams.streams.take(10))",
                   "trendingAdapter.submitList(trendingStreams.streams.take(40))")
 
@@ -247,6 +249,10 @@ def style_downloads_history(res):
     hist=res/"layout/fragment_watch_history.xml"
     root=ET.parse(hist).getroot()
     tb=find_id(root,"watch_history_collapsing_tb")
+    # A vertical container avoids the title overlapping the existing filter chips.
+    tb.tag="LinearLayout"
+    tb.set(A+"orientation","vertical")
+    tb.attrib.pop(APP+"titleCollapseMode",None)
     tb.insert(0,ET.Element("TextView",{
         A+"layout_width":"match_parent",A+"layout_height":"wrap_content",
         A+"paddingStart":"16dp",A+"paddingTop":"12dp",A+"paddingBottom":"6dp",
