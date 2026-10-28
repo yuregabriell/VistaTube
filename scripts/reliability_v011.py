@@ -130,14 +130,19 @@ def patch(root):
                 else if (channelName.isNotBlank()) {''',
         '''                if (combined.size >= 10) combined
                 else if (channelName.isNotBlank()) {''')
-    once(provider,'''                        }.getOrDefault(emptyList())
+    # The name-search block is the only one allowed to combine extras here.
+    provider_source = provider.read_text(encoding="utf-8")
+    anchor = provider_source.index('service.getSearchResults(channelName, "videos")')
+    old_suffix = '''                        }.getOrDefault(emptyList())
                     }.orEmpty()
-                } else emptyList()''',
-        '''                        }.getOrDefault(emptyList())
+                } else emptyList()'''
+    start = provider_source.index(old_suffix, anchor)
+    provider.write_text(provider_source[:start] + '''                        }.getOrDefault(emptyList())
                     }.orEmpty().let { extras ->
                         (combined + extras).distinctBy { it.url.orEmpty().toID() }
                     }
-                } else combined''')
+                } else combined''' +
+                        provider_source[start + len(old_suffix):], encoding="utf-8")
 
     # Previously, retries from Search/Related produced only two valid
     # candidates, yet onScroll did nothing because there were only two rows.
