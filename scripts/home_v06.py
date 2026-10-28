@@ -83,7 +83,7 @@ import kotlinx.coroutines.CancellationException""")
         }
         if (generation != recommendationsGeneration) return
         val newPages""",
-        """            }.awaitAll().filterNotNull().filterNotNull()
+        """            }.awaitAll().filterNotNull()
         }
         if (generation != recommendationsGeneration) return
         val newPages""")
