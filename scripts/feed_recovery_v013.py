@@ -177,6 +177,23 @@ def patch(root):
                     seen.add(id)
                     combined.add(item)
                     picked = true''')
+    # Start category recovery while searches execute, not after six slow waves.
+    replace_once('''            val discoveryJob = launch {
+                vistaFetchMore()''',
+        '''            val categoryJob = launch {
+                delay(2_500L)
+                if (generation == recommendationsGeneration &&
+                    recommendedItems.size < 10) {
+                    vistaFillSparseDiscovery()
+                }
+            }
+            val discoveryJob = launch {
+                vistaFetchMore()''')
+    replace_once('''            discoveryJob.join()
+        }''',
+        '''            discoveryJob.join()
+            categoryJob.join()
+        }''')
     vm.write_text(s,encoding="utf-8")
     print("VistaTube 0.13: refreshed query queue, multiprovider recovery, short feed auto retry")
 
