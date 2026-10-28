@@ -232,9 +232,12 @@ DISCOVERY = r'''    // Ten results at a time. User scrolling, not background req
                 val videos = withTimeoutOrNull(14_000L) {
                     VistaSubscriptionVideos.videosFromChannels(channels, maxChannels = 18)
                 }.orEmpty()
-                if (generation != recommendationsGeneration) return@launch
-                vistaAdd(vistaSubscribedVideos, videos)
-                updateRecommendedVideos()
+                withContext(Dispatchers.Main) {
+                    if (generation == recommendationsGeneration) {
+                        vistaAdd(vistaSubscribedVideos, videos)
+                        updateRecommendedVideos()
+                    }
+                }
             }
             val relatedJob = launch(Dispatchers.IO) {
                 val related = history.take(5).map { it.videoId }.distinct()
@@ -248,9 +251,12 @@ DISCOVERY = r'''    // Ten results at a time. User scrolling, not background req
                             }.orEmpty()
                         }
                     }.awaitAll().flatten()
-                if (generation != recommendationsGeneration) return@launch
-                vistaAdd(vistaRelatedVideos, related)
-                updateRecommendedVideos()
+                withContext(Dispatchers.Main) {
+                    if (generation == recommendationsGeneration) {
+                        vistaAdd(vistaRelatedVideos, related)
+                        updateRecommendedVideos()
+                    }
+                }
             }
             val discoveryJob = launch {
                 vistaFetchMore()
