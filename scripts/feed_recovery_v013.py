@@ -169,7 +169,11 @@ def patch(root):
                     val recent = combined.takeLast(8).count {
                         it.uploaderName.orEmpty().lowercase().trim() == creator
                     }
-                    if (creator.isNotEmpty() && recent >= 2) continue
+                    val otherSourcesHaveVideos = buckets.indices.any { other ->
+                        other != bucket && positions[other] < buckets[other].size
+                    }
+                    if (creator.isNotEmpty() && recent >= 2 &&
+                        otherSourcesHaveVideos) continue
                     seen.add(id)
                     combined.add(item)
                     picked = true''')
