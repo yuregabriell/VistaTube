@@ -87,11 +87,20 @@ def patch(root):
         val results = withContext(Dispatchers.IO) {
             categories.map { category ->
                 async {
-                    withTimeoutOrNull(8_000L) {
+                    val primary = withTimeoutOrNull(7_000L) {
                         runCatching {
                             MediaServiceRepository.instance.getTrending("BR", category)
                         }.getOrDefault(emptyList())
                     }.orEmpty()
+                    if (primary.size >= 10) primary else {
+                        val secondary = withTimeoutOrNull(7_000L) {
+                            runCatching {
+                                com.github.libretube.api.NewPipeMediaServiceRepository()
+                                    .getTrending("BR", category)
+                            }.getOrDefault(emptyList())
+                        }.orEmpty()
+                        (primary + secondary).distinctBy { it.url.orEmpty().toID() }
+                    }
                 }
             }.awaitAll().flatten()
         }
