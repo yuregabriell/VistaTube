@@ -52,6 +52,9 @@ jobs:
       - name: Integrate Chromecast sender beta
         run: python3 scripts/cast_v05.py upstream
 
+      - name: Fix Home loading, empty state and progressive recommendations
+        run: python3 scripts/home_v06.py upstream
+
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
@@ -91,14 +94,17 @@ jobs:
       - name: Publish preview release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v0.5.0-preview.${{ github.run_number }}
+          tag_name: v0.6.0-preview.${{ github.run_number }}
           target_commitish: ${{ github.sha }}
-          name: VistaTube v0.5.0 Preview ${{ github.run_number }}
+          name: VistaTube v0.6.0 Preview ${{ github.run_number }}
           prerelease: true
           generate_release_notes: false
           body: |
-            ## VistaTube 0.5 — Para ti unificado, subscrições e Cast Beta
+            ## VistaTube 0.6 — corrigir Home vazia
             Variante não oficial do LibreTube v32.1 (GPL-3.0-or-later).
+            Home não bloqueia à espera de pesquisas de recomendações; exibe
+            rapidamente os vídeos das subscrições ou uma mensagem útil, com
+            limites de tempo para serviços lentos. Preserva o Cast Beta.
             Recomendações que privilegiam subscrições e histórico, sem Destaques duplicados.
             Atualização de subscrições ao entrar na página, descoberta progressiva e
             Chromecast (beta para HLS, DASH e ficheiros de vídeo multiplexados).
