@@ -136,12 +136,28 @@ DISCOVERY = r'''    // Ten results at a time. User scrolling, not background req
         query: String, nextPage: String? = null
     ): Triple<String, List<StreamItem>, String?>? {
         val api = MediaServiceRepository.instance
-        val result = withTimeoutOrNull(7_000L) {
+        var result = withTimeoutOrNull(7_000L) {
             runCatching {
                 if (nextPage.isNullOrBlank()) api.getSearchResults(query, "videos")
                 else api.getSearchResultsNextPage(query, "videos", nextPage)
             }.getOrNull()
-        } ?: return null
+        }
+        // Piped instances can return zero/very few hits while the NewPipe
+        // extractor still has results. Fall back only when the first source
+        // is sparse; never discard successful primary results.
+        if (result == null || result.items.size < 4) {
+            val backup = withTimeoutOrNull(7_000L) {
+                runCatching {
+                    val local = com.github.libretube.api.NewPipeMediaServiceRepository()
+                    if (nextPage.isNullOrBlank()) local.getSearchResults(query, "videos")
+                    else local.getSearchResultsNextPage(query, "videos", nextPage)
+                }.getOrNull()
+            }
+            if (backup != null && backup.items.size > (result?.items?.size ?: 0)) {
+                result = backup
+            }
+        }
+        result ?: return null
         val videos = result.items.filter { it.type == StreamItem.TYPE_STREAM }
             .map { it.toStreamItem() }
         return Triple(query, videos, result.nextpage)
