@@ -76,6 +76,15 @@ jobs:
       - name: Fix Home vertical scrolling and verify viewport
         run: python3 scripts/home_scroll_v012.py upstream
 
+      - name: Repair discovery source starvation and automatically refill feed
+        run: python3 scripts/feed_recovery_v013.py upstream
+
+      - name: Verify recommendation feed recovery code
+        run: |
+          grep -q "vistaReplenishQueries" upstream/app/src/main/java/com/github/libretube/ui/models/HomeViewModel.kt
+          grep -q "vistaConsecutiveEmpty" upstream/app/src/main/java/com/github/libretube/ui/models/HomeViewModel.kt
+          grep -q "selectedPages" upstream/app/src/main/java/com/github/libretube/ui/models/HomeViewModel.kt || grep -q "val pages = pendingPages.take(2)" upstream/app/src/main/java/com/github/libretube/ui/models/HomeViewModel.kt
+
       - name: Verify source includes VistaTube fixes
         run: |
           grep -q "vistaCloseSearchForBottomNav" upstream/app/src/main/java/com/github/libretube/ui/activities/MainActivity.kt
@@ -122,14 +131,18 @@ jobs:
       - name: Publish preview release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v0.12.0-preview.${{ github.run_number }}
+          tag_name: v0.13.0-preview.${{ github.run_number }}
           target_commitish: ${{ github.sha }}
-          name: VistaTube v0.12.0 Preview ${{ github.run_number }}
+          name: VistaTube v0.13.0 Preview ${{ github.run_number }}
           prerelease: true
           generate_release_notes: false
           body: |
-            ## VistaTube 0.12 — rolagem vertical da Home corrigida
+            ## VistaTube 0.13 — Para ti deixa de parar em três vídeos
             Variante não oficial do LibreTube v32.1 (GPL-3.0-or-later).
+            Corrige a exaustão da fila de pesquisas e a filtragem excessiva que
+            bloqueavam o Para ti em 2–3 vídeos. Carrega novas pesquisas e
+            páginas continuamente e procura conteúdo em categorias adequadas
+            aos interesses do utilizador quando faltam candidatos.
             Correção do viewport da Home: SwipeRefreshLayout e ScrollView
             agora têm altura da área disponível em vez de wrap_content.
             Mantém a lista de dez em dez e o scroll independente dos cartões.
