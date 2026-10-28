@@ -56,16 +56,13 @@ def apply(root):
             "podcast brasileiro"
         ) else distinct''', '''        val seeds = distinct
         if (seeds.isEmpty()) return emptyList()''')
-    once(vm,'''        val titles = history.asSequence()
-            .mapNotNull { it.title?.trim() }
-            .map { it.replace(Regex("[^\\p{L}\\p{N} ]"), " ") }
-            .map { it.split(Regex("\\s+")).filter { w -> w.length >= 3 }.take(5).joinToString(" ") }
-            .filter { it.length >= 6 }
-            .distinct()
-            .take(7)
-            .toList()''', '''        // Full generic video titles often lead to wrong movie/drama matches.
-        // Prefer creators plus searches; watched videos seed related-item discovery.
-        val titles = emptyList<String>()''')
+    # Replace the title-derived queries by delimiters, not the full regex
+    # literal (Python/Kotlin escaping differs by source version).
+    source = vm.read_text(encoding="utf-8")
+    left = source.index("        val titles = history.asSequence()")
+    right = source.index("        val distinct =", left)
+    vm.write_text(source[:left] + "        val titles = emptyList<String>()\n" +
+                  source[right:], encoding="utf-8")
     once(vm,'''        recommendationSearches = searches
         val queries = makeQueries(history, searches)''',
          '''        recommendationSearches = searches
