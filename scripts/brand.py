@@ -6,7 +6,7 @@ import re
 import xml.etree.ElementTree as ET
 
 PACKAGE = "app.vistatube.mobile"
-VERSION = "0.8.0-preview"
+VERSION = "0.9.0-preview"
 
 ICON = '''<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
@@ -63,7 +63,7 @@ def apply(root):
     if not gradle.is_file():
         raise FileNotFoundError(f"Not a LibreTube checkout: {root}")
     replace(gradle, 'applicationId = "com.github.libretube"', f'applicationId = "{PACKAGE}"')
-    replace(gradle, 'versionCode = 72', 'versionCode = 8')
+    replace(gradle, 'versionCode = 72', 'versionCode = 9')
     replace(gradle, 'versionName = "32.1"', f'versionName = "{VERSION}"')
     replace(gradle, 'resValue("string", "app_name", "LibreTube")', 'resValue("string", "app_name", "VistaTube")')
     replace(gradle, 'resValue("string", "app_name", "LibreTube Debug")', 'resValue("string", "app_name", "VistaTube")')
