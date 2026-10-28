@@ -73,6 +73,9 @@ jobs:
       - name: Recover enough candidate videos with network fallbacks
         run: python3 scripts/reliability_v011.py upstream
 
+      - name: Fix Home vertical scrolling and verify viewport
+        run: python3 scripts/home_scroll_v012.py upstream
+
       - name: Verify source includes VistaTube fixes
         run: |
           grep -q "vistaCloseSearchForBottomNav" upstream/app/src/main/java/com/github/libretube/ui/activities/MainActivity.kt
@@ -119,14 +122,17 @@ jobs:
       - name: Publish preview release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v0.11.0-preview.${{ github.run_number }}
+          tag_name: v0.12.0-preview.${{ github.run_number }}
           target_commitish: ${{ github.sha }}
-          name: VistaTube v0.11.0 Preview ${{ github.run_number }}
+          name: VistaTube v0.12.0 Preview ${{ github.run_number }}
           prerelease: true
           generate_release_notes: false
           body: |
-            ## VistaTube 0.11 — scroll e pesquisa corrigidos
+            ## VistaTube 0.12 — rolagem vertical da Home corrigida
             Variante não oficial do LibreTube v32.1 (GPL-3.0-or-later).
+            Correção do viewport da Home: SwipeRefreshLayout e ScrollView
+            agora têm altura da área disponível em vez de wrap_content.
+            Mantém a lista de dez em dez e o scroll independente dos cartões.
             O toque em Início fecha e limpa a pesquisa. A Home já não cancela
             a descoberta durante atualizações automáticas, carrega mais vídeos
             mesmo sem scroll e usa vídeos relacionados/canais reais como fallback.
