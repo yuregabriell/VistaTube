@@ -26,7 +26,6 @@ def patch(root: Path):
     swipe.set(A+"layout_height", "match_parent")
     scroll.set(A+"layout_height", "match_parent")
     scroll.set(A+"fillViewport", "true")
-    scroll.set(A+"verticalScrollBarEnabled", "false")
     scroll.set(A+"overScrollMode", "ifContentScrolls")
 
     column = next((x for x in scroll if x.tag == "LinearLayout"), None)
