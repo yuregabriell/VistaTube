@@ -18,6 +18,6 @@ main.write_text(source, encoding="utf-8")
 gradle = root / "app/build.gradle.kts"
 text = gradle.read_text(encoding="utf-8")
 # Keep the prior VistaTube versioning and source pin.
-assert "0.14.0-preview" in text
-gradle.write_text(text.replace("0.14.0-preview", "0.15.0-preview"), encoding="utf-8")
+assert "0.13.0-preview" in text or "0.14.0-preview" in text
+gradle.write_text(text.replace("0.13.0-preview", "0.15.0-preview").replace("0.14.0-preview", "0.15.0-preview"), encoding="utf-8")
 print("VistaTube: native Leanback TV icon retained; widescreen in TV only.")
