@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""VistaTube 1.0: fix sparse For You feed + diversify discovery without manual reload."""
+"""VistaTube 0.10: fix sparse For You feed + diversify discovery without manual reload."""
 from pathlib import Path
 import argparse
 
@@ -152,7 +152,7 @@ def patch(root):
             ", unique=" + combined.size +
             ", shown=" + minOf(combined.size, vistaVisibleCount))
         recommendations.value = combined.take(vistaVisibleCount)''')
-    print("VistaTube 1.0: mixing continuation pages and new topics; trying 5 search waves + interest fallback")
+    print("VistaTube 0.10: mixing continuation pages and new topics; trying 5 search waves + interest fallback")
 
 if __name__=="__main__":
     parser=argparse.ArgumentParser()
