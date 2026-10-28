@@ -67,6 +67,19 @@ jobs:
       - name: Fix sparse discovery by mixing topics, pages and related trending
         run: python3 scripts/discovery_v10.py upstream
 
+      - name: Correct Home navigation and isolate discovery loading
+        run: python3 scripts/navigation_v011.py upstream
+
+      - name: Recover enough candidate videos with network fallbacks
+        run: python3 scripts/reliability_v011.py upstream
+
+      - name: Verify source includes VistaTube fixes
+        run: |
+          grep -q "vistaCloseSearchForBottomNav" upstream/app/src/main/java/com/github/libretube/ui/activities/MainActivity.kt
+          grep -q "fun ensureRecommendations" upstream/app/src/main/java/com/github/libretube/ui/models/HomeViewModel.kt
+          grep -q "vistaDiscoveryJob" upstream/app/src/main/java/com/github/libretube/ui/models/HomeViewModel.kt
+          grep -q "getChildAt(0)" upstream/app/src/main/java/com/github/libretube/ui/fragments/HomeFragment.kt
+
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
@@ -106,14 +119,17 @@ jobs:
       - name: Publish preview release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v0.10.0-preview.${{ github.run_number }}
+          tag_name: v0.11.0-preview.${{ github.run_number }}
           target_commitish: ${{ github.sha }}
-          name: VistaTube v0.10.0 Preview ${{ github.run_number }}
+          name: VistaTube v0.11.0 Preview ${{ github.run_number }}
           prerelease: true
           generate_release_notes: false
           body: |
-            ## VistaTube 0.10 — corrigir o Para ti com apenas 2 vídeos
+            ## VistaTube 0.11 — scroll e pesquisa corrigidos
             Variante não oficial do LibreTube v32.1 (GPL-3.0-or-later).
+            O toque em Início fecha e limpa a pesquisa. A Home já não cancela
+            a descoberta durante atualizações automáticas, carrega mais vídeos
+            mesmo sem scroll e usa vídeos relacionados/canais reais como fallback.
             Correção da fome de resultados: procura simultaneamente páginas
             adicionais e novos temas, tenta até cinco rondas iniciais e usa
             tendências relevantes como alternativa quando há poucos vídeos.
