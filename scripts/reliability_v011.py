@@ -101,6 +101,44 @@ def patch(root):
                 if (combined.isNotEmpty()) combined
                 else if (channelName.isNotBlank()) {''')
 
+    # A cached-feed request previously included expensive channel lookups,
+    # causing all cached videos to be discarded after an eight-second timeout.
+    once(vm,'''        val cachedFeed = withTimeoutOrNull(8_000L) {
+            VistaSubscriptionVideos.loadFeedWithFallback(false)
+        }.orEmpty()''',
+        '''        val cachedFeed = withTimeoutOrNull(5_000L) {
+            withContext(Dispatchers.IO) {
+                runCatching {
+                    SubscriptionHelper.getFeed(forceRefresh = false)
+                }.getOrDefault(emptyList())
+            }
+        }.orEmpty()''')
+    once(vm,'''                val videos = withTimeoutOrNull(14_000L) {
+                    VistaSubscriptionVideos.videosFromChannels(channels, maxChannels = 18)
+                }.orEmpty()''',
+        '''                val videos = withTimeoutOrNull(27_000L) {
+                    VistaSubscriptionVideos.videosFromChannels(channels, maxChannels = 18)
+                }.orEmpty()''')
+    once(vm,'''                            withTimeoutOrNull(6_000L) {
+                                val main = runCatching {''',
+        '''                            withTimeoutOrNull(14_000L) {
+                                val main = runCatching {''')
+
+    # A channel with two items should still search for more videos; in the old
+    # version the name search ran only if zero items were returned.
+    once(provider,'''                if (combined.isNotEmpty()) combined
+                else if (channelName.isNotBlank()) {''',
+        '''                if (combined.size >= 10) combined
+                else if (channelName.isNotBlank()) {''')
+    once(provider,'''                        }.getOrDefault(emptyList())
+                    }.orEmpty()
+                } else emptyList()''',
+        '''                        }.getOrDefault(emptyList())
+                    }.orEmpty().let { extras ->
+                        (combined + extras).distinctBy { it.url.orEmpty().toID() }
+                    }
+                } else combined''')
+
     # Previously, retries from Search/Related produced only two valid
     # candidates, yet onScroll did nothing because there were only two rows.
     # Keep fallback discovery local, but don't introduce unrelated videos
