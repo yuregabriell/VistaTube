@@ -144,7 +144,7 @@ import kotlinx.coroutines.CancellationException""")
         A+"textSize":"15sp",A+"visibility":"visible"
     })
     col.insert(ind+1,text)
-    xml.write_text('<?xml version="1.0" encoding="utf-8"?>\n'+ET.tostring(xml.getroot(),encoding="unicode"),encoding="utf-8")
+    layout.write_text('<?xml version="1.0" encoding="utf-8"?>\n'+ET.tostring(xml.getroot(),encoding="unicode"),encoding="utf-8")
     ET.parse(layout)
     print("VistaTube 0.6: nonblocking Home, progressive subscription feed, timeout fallbacks")
 
