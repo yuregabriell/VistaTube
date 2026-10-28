@@ -82,6 +82,9 @@ jobs:
       - name: Add optional Vista ID local account support
         run: python3 scripts/vista_id_local.py upstream
 
+      - name: Enable VistaTube widescreen Android TV mode
+        run: python3 scripts/tv_mode_v015.py upstream
+
       - name: Verify recommendation feed recovery code
         run: |
           grep -q "vistaReplenishQueries" upstream/app/src/main/java/com/github/libretube/ui/models/HomeViewModel.kt
@@ -134,13 +137,13 @@ jobs:
       - name: Publish preview release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v0.14.0-preview.${{ github.run_number }}
+          tag_name: v0.15.0-preview.${{ github.run_number }}
           target_commitish: ${{ github.sha }}
-          name: VistaTube v0.14.0 Preview ${{ github.run_number }}
+          name: VistaTube v0.15.0 Preview ${{ github.run_number }}
           prerelease: true
           generate_release_notes: false
           body: |
-            ## VistaTube 0.14 — Vista ID local opcional\n            Integra ligação local ao Vista ID na página de Definições, preservando\n            playlists, histórico, subscrições e modo sem conta. Sem cloud por enquanto.\n\n            ## VistaTube 0.13 — Para ti deixa de parar em três vídeos
+            ## VistaTube 0.14 — Vista ID local opcional\n            Android TV: modo landscape nativo no ecrã de televisão, mantendo a interface mobile no telemóvel.\n            Integra ligação local ao Vista ID na página de Definições, preservando\n            playlists, histórico, subscrições e modo sem conta. Sem cloud por enquanto.\n\n            ## VistaTube 0.13 — Para ti deixa de parar em três vídeos
             Variante não oficial do LibreTube v32.1 (GPL-3.0-or-later).
             Corrige a exaustão da fila de pesquisas e a filtragem excessiva que
             bloqueavam o Para ti em 2–3 vídeos. Carrega novas pesquisas e
