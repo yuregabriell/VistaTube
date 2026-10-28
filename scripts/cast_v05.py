@@ -84,7 +84,7 @@ def apply(root):
 ''',
         '''dependencies {
     // Android Sender Cast SDK; TV must fetch media URL independently.
-    implementation("com.google.android.gms:play-services-cast-framework:23.0.0")
+    implementation("com.google.android.gms:play-services-cast-framework:22.3.1")
 ''')
     manifest=base/"AndroidManifest.xml"
     replace_once(manifest,
