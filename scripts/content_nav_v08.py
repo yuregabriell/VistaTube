@@ -200,6 +200,11 @@ def patch(root):
                             paddingRight,
                             systemBarInsets.bottom + (16 * resources.displayMetrics.density).toInt()""")
 
+    # Keep all bottom tab labels visible and give them a consistent touch area.
+    nav_xml=root/"app/src/main/res/layout/activity_main.xml"
+    once(nav_xml, '        app:labelVisibilityMode="selected" />',
+         '        app:labelVisibilityMode="labeled"\n        android:minHeight="72dp" />')
+
     print("VistaTube 0.8: per-channel fallback for Home and Subscriptions; bottom nav safe padding")
 
 if __name__=="__main__":
