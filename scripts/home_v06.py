@@ -51,6 +51,33 @@ import kotlinx.coroutines.CancellationException""")
                 }
                 loadedSuccessfully.value = true
                 isLoading.value = false""")
+    # The old widgets are hidden in VistaTube. Waiting for trending,
+    # bookmarks, playlists and their network calls unnecessarily delayed
+    # recommendations (or could block them forever).
+    replace(vm,"""                awaitAll(
+                    async { if (visibleItems.contains(TRENDING)) loadTrending(context) },
+                    async { if (visibleItems.contains(FEATURED)) loadFeed(subscriptionsViewModel) },
+                    async { if (visibleItems.contains(BOOKMARKS)) loadBookmarks() },
+                    async { if (visibleItems.contains(PLAYLISTS)) loadPlaylists() },
+                    async { if (visibleItems.contains(WATCHING)) loadVideosToContinueWatching() }
+                )
+                // Launch search/related recommendations independently.""",
+        """                // Launch search/related recommendations independently.""")
+    replace(vm,"""                loadedSuccessfully.value = true
+                isLoading.value = false
+            }
+
+            withContext(Dispatchers.IO)""",
+        """                try {
+                    if (visibleItems.contains(WATCHING)) loadVideosToContinueWatching()
+                } catch (error: Exception) {
+                    android.util.Log.w("VistaTubeHome", "Continue watching unavailable", error)
+                }
+                loadedSuccessfully.value = true
+                isLoading.value = false
+            }
+
+            withContext(Dispatchers.IO)""")
     # Display subscription videos immediately instead of blocking on 6+
     # searches, related videos, and pagination. Preserve ranking later.
     replace(vm,"""        val subscriptionsFeed = withContext(Dispatchers.IO) {
